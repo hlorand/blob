@@ -10,6 +10,8 @@ public class DetectProximityAndAttach : MonoBehaviour
     private List<SpringJoint> springJoints = new List<SpringJoint>();
     private List<LineRenderer> lineRenderers = new List<LineRenderer>();
 
+    public bool active = false;
+
     void Start()
     {
         attachedObjects = new List<GameObject>();
@@ -48,6 +50,8 @@ public class DetectProximityAndAttach : MonoBehaviour
 
     void AttachGameObject(GameObject detectedObject)
     {
+        if( !active ) return;
+
         // defore attaching detect if the object is already attached (see its attachedObjects list) skip if it is already attached
         if (attachedObjects.Contains(detectedObject))
         {
@@ -126,6 +130,8 @@ public class DetectProximityAndAttach : MonoBehaviour
     // if its touching the "ground" tag freeze position, if its not touching the ground unfreeze position
     void OnCollisionEnter(Collision collision)
     {
+        if( !active ) return;
+
         if (collision.gameObject.CompareTag("ground"))
         {
             Rigidbody rb = GetComponent<Rigidbody>();
@@ -138,6 +144,8 @@ public class DetectProximityAndAttach : MonoBehaviour
 
     void OnCollisionExit(Collision collision)
     {
+        if( !active ) return;
+
         if (collision.gameObject.CompareTag("ground"))
         {
             Rigidbody rb = GetComponent<Rigidbody>();
