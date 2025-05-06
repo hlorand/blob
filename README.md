@@ -47,3 +47,8 @@ Zene:
 - suno ai
 
 > Futuristic ambient music set in a sky temple, evoking the sensation of floating above clouds. Features uplifting, ethereal synths, gentle electric buzzing, and a serene, spacious atmosphere. Perfect for a logic puzzle game, blending tranquility with subtle energy and a sense of wonder
+
+Egyéb infók:
+
+- PC_Renderer-ben (az Assetek között keress rá) kikapcsoltam az Ambient Occlusion-t
+- Post Processinget adtam hozzá: lásd: Global Volume gameobject

@@ -12,6 +12,8 @@ public class DetectProximityAndAttach : MonoBehaviour
 
     public bool active = false;
 
+    public bool electrified = false;
+
     void Start()
     {
         attachedObjects = new List<GameObject>();
@@ -29,7 +31,7 @@ public class DetectProximityAndAttach : MonoBehaviour
             GameObject obj = hitCollider.gameObject;
 
             if (obj != gameObject &&
-                obj.CompareTag("blob") &&
+                (obj.CompareTag("blob") || obj.CompareTag("electricity") || obj.CompareTag("light") ) &&
                 !attachedObjects.Contains(obj) &&
                 obj.GetComponent<Rigidbody>() != null)
             {
@@ -45,12 +47,44 @@ public class DetectProximityAndAttach : MonoBehaviour
             }
         }
 
+        // scan attached objects attachedObjects and set their DetectProximityAndAttach.electrified variable to true if me is electrified
+        
+        foreach (var attachedObject in attachedObjects)
+        {
+            if (attachedObject.GetComponent<DetectProximityAndAttach>() != null)
+            {
+                if (electrified)
+                {
+                attachedObject.GetComponent<DetectProximityAndAttach>().electrified = true;
+                }
+
+                // check if the attached objcet is electrified and if so set myself to electrified
+                if (attachedObject.GetComponent<DetectProximityAndAttach>().electrified)
+                {
+                    electrified = true;
+                }
+            }
+        }
+        
+
         UpdateLineRenderers();
     }
 
     void AttachGameObject(GameObject detectedObject)
     {
         if( !active ) return;
+
+        // if other tag is electricity then set electrified to true
+        if (detectedObject.CompareTag("electricity"))
+        {
+            electrified = true;
+        }
+
+        // if other tag is light and this is electrified then set Light class turnedon to true
+        if (detectedObject.CompareTag("light") && electrified)
+        {
+            detectedObject.GetComponent<Light>().turnedon = true;
+        }
 
         // defore attaching detect if the object is already attached (see its attachedObjects list) skip if it is already attached
         if (attachedObjects.Contains(detectedObject))
@@ -79,10 +113,18 @@ public class DetectProximityAndAttach : MonoBehaviour
 
         LineRenderer lr = lineObj.AddComponent<LineRenderer>();
         lr.material = new Material(Shader.Find("Sprites/Default"));
-        lr.startWidth = 0.1f;
-        lr.endWidth = 0.1f;
-        lr.startColor = Color.red;
-        lr.endColor = Color.red;
+        lr.startWidth = 0.3f;
+        lr.endWidth = 0.3f;
+        if( electrified )
+        {
+            lr.startColor = Color.blue;
+            lr.endColor = Color.blue;
+        }
+        else
+        {
+            lr.startColor = Color.red;
+            lr.endColor = Color.red;
+        }
         lr.useWorldSpace = true;
         lr.positionCount = 2;
         lr.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
@@ -104,9 +146,39 @@ public class DetectProximityAndAttach : MonoBehaviour
             {
                 lineRenderers[i].enabled = false;
             }
+
+            // if attached object has "electrified" variable set to true then set the line renderer color to blue
+
+                if (attachedObjects[i].GetComponent<DetectProximityAndAttach>() != null && attachedObjects[i].GetComponent<DetectProximityAndAttach>().electrified ||
+                    attachedObjects[i].CompareTag("light") && electrified)
+                {
+                    lineRenderers[i].startColor = Color.blue;
+                    lineRenderers[i].endColor = Color.blue;
+                    electrified = true; // set electrified to true in this also
+                }
+                /*
+                else
+                {
+                    lineRenderers[i].startColor = Color.red;
+                    lineRenderers[i].endColor = Color.red;
+                }
+                */
+        }
+
+        for (int i = 0; i < lineRenderers.Count; i++)
+        {
+        // if attached object is a light, and me electrified turn on the light
+            if (attachedObjects[i].CompareTag("light") && electrified )
+            {
+                if (attachedObjects[i].GetComponent<Light>() != null)
+                {
+                    attachedObjects[i].GetComponent<Light>().turnedon = true;
+                }
+            }
         }
     }
 
+    /*
     public void RemoveAttachedGameObject(GameObject detectedObject)
     {
         int index = attachedObjects.IndexOf(detectedObject);
@@ -120,6 +192,7 @@ public class DetectProximityAndAttach : MonoBehaviour
             attachedObjects.RemoveAt(index);
         }
     }
+    */
 
     void OnDrawGizmos()
     {
