@@ -9,10 +9,15 @@ public class Player : MonoBehaviour
 
     private int currentIndex = 0;
 
+    public GameObject nextButton; // Assign in Inspector
+
+    private AudioSource audioSource;
+
     void Start()
     {
         // innét kell a cannonballPrefabs listába a cannonball prefabokat
         GameObject.Find("Blob Prefabs").SetActive(false);
+        //GameObject.Find("HelpImage").SetActive(true);
 
         // serach for gameobject named CannonballMagazine and place the cannonballPrefabs in it
         // with position starting from the CAnnonballMagazine's position and set a little gap between them in the x direction
@@ -36,31 +41,60 @@ public class Player : MonoBehaviour
             Debug.LogError("CannonballMagazine not found!");
         }
 
+        // kezdeti ágyúcső hossz
+        transform.localScale = new Vector3( transform.localScale.x, transform.localScale.y, launchForce/20 );
+
+
+        // audiosource komponens lekérése
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(1))
         {
+            audioSource.Play();
             FireCannonball();
         }
         
-        if (Input.GetKeyDown(KeyCode.A) )
+        if (Input.GetKeyDown(KeyCode.E) )
         {
-            transform.localScale = Vector3.Scale(transform.localScale, new Vector3(1f, 1f, 1.05f));
             launchForce += 5f;
-            if (launchForce > 100f)
-                launchForce = 100f;
+
+            if (launchForce > 150f)
+                launchForce = 150f;
+            
+            transform.localScale = new Vector3( transform.localScale.x, transform.localScale.y, launchForce/20 ); //Vector3.Scale(transform.localScale, new Vector3(1f, 1f, 1.05f));
+            
         }
-        if (Input.GetKeyDown(KeyCode.D) )
+        if (Input.GetKeyDown(KeyCode.Q) )
         {
+            launchForce -= 5f;
+            
             if (launchForce <= 15f){
                 launchForce = 15f;
-            } else{
-                transform.localScale = Vector3.Scale(transform.localScale, new Vector3(1f, 1f, 0.95f));
-                launchForce -= 5f;
+            } 
+
+            transform.localScale = new Vector3( transform.localScale.x, transform.localScale.y, launchForce/20 );
+        }
+
+        // find all gameobject that has tag "light" and check if every one has "Light class" > turnedon = true, if so find NExButtonBIG and set active
+        GameObject[] lights = GameObject.FindGameObjectsWithTag("light");
+        bool allLightsOn = true;
+        foreach (GameObject light in lights)
+        {
+            Light lightComponent = light.GetComponent<Light>();
+            if (lightComponent != null && !lightComponent.turnedon)
+            {
+                allLightsOn = false;
+                break;
             }
         }
+        if (nextButton != null)
+        {
+            nextButton.SetActive(allLightsOn);
+        }
+
     }
 
     void RepositionCannonball(Rigidbody rb, Vector3 newPosition)

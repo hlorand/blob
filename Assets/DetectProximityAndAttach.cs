@@ -14,11 +14,14 @@ public class DetectProximityAndAttach : MonoBehaviour
 
     public bool electrified = false;
 
+    private AudioSource audioSource;
+
     void Start()
     {
         attachedObjects = new List<GameObject>();
         springJoints = new List<SpringJoint>();
         lineRenderers = new List<LineRenderer>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     void Update()
@@ -31,7 +34,7 @@ public class DetectProximityAndAttach : MonoBehaviour
             GameObject obj = hitCollider.gameObject;
 
             if (obj != gameObject &&
-                (obj.CompareTag("blob") || obj.CompareTag("electricity") || obj.CompareTag("light") ) &&
+                (obj.CompareTag("blob") || obj.CompareTag("electricity") || obj.CompareTag("light") || obj.CompareTag("attachpoint") ) &&
                 !attachedObjects.Contains(obj) &&
                 obj.GetComponent<Rigidbody>() != null)
             {
@@ -130,6 +133,8 @@ public class DetectProximityAndAttach : MonoBehaviour
         lr.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
 
         lineRenderers.Add(lr);
+
+        audioSource.Play();
     }
 
     void UpdateLineRenderers()

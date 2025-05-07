@@ -8,11 +8,12 @@ TagManager:
   - ground
   - electricity
   - light
+  - attachpoint
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - LineCollider
   - Water
   - UI
   - 
